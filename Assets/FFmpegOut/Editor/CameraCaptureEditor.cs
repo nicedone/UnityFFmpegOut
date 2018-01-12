@@ -20,13 +20,14 @@ namespace FFmpegOut
             new GUIContent("H.264 Default (MP4)"),
             new GUIContent("H.264 Lossless 420 (MP4)"),
             new GUIContent("H.264 Lossless 444 (MP4)"),
+            new GUIContent("H.265 Default (MP4)"),
             new GUIContent("ProRes 422 (QuickTime)"),
             new GUIContent("ProRes 4444 (QuickTime)"),
             new GUIContent("VP8 (WebM)"),
             new GUIContent("VP9 (WebM)")
         };
 
-        static int [] _presetOptions = { 0, 1, 2, 3, 4, 5, 6 };
+        static int [] _presetOptions = { 0, 1, 2, 3, 4, 5, 6, 7 };
 
         void OnEnable()
         {

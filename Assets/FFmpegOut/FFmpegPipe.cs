@@ -10,11 +10,12 @@ namespace FFmpegOut
         #region Public properties
 
         public enum Preset {
-            ProRes422,
-            ProRes4444,
             H264Default,
             H264Lossless420,
             H264Lossless444,
+            H265Default,
+            ProRes422,
+            ProRes4444,
             VP8Default,
             VP9Default
         }
@@ -88,6 +89,7 @@ namespace FFmpegOut
             ".mp4",
             ".mp4",
             ".mp4",
+            ".mp4",
             ".mov",
             ".mov",
             ".webm",
@@ -98,6 +100,7 @@ namespace FFmpegOut
             "-pix_fmt yuv420p",
             "-pix_fmt yuv420p -preset ultrafast -crf 0",
             "-pix_fmt yuv444p -preset ultrafast -crf 0",
+            "-c:v libx265 -pix_fmt yuv420p",
             "-c:v prores_ks -pix_fmt yuv422p10le",
             "-c:v prores_ks -pix_fmt yuva444p10le",
             "-c:v libvpx -pix_fmt yuv420p",
