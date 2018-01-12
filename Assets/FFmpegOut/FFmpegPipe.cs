@@ -15,7 +15,8 @@ namespace FFmpegOut
             H264Default,
             H264Lossless420,
             H264Lossless444,
-            VP8Default
+            VP8Default,
+            VP9Default
         }
 
         public string Filename { get; private set; }
@@ -89,6 +90,7 @@ namespace FFmpegOut
             ".mp4",
             ".mov",
             ".mov",
+            ".webm",
             ".webm"
         };
 
@@ -98,7 +100,8 @@ namespace FFmpegOut
             "-pix_fmt yuv444p -preset ultrafast -crf 0",
             "-c:v prores_ks -pix_fmt yuv422p10le",
             "-c:v prores_ks -pix_fmt yuva444p10le",
-            "-c:v libvpx -pix_fmt yuv420p"
+            "-c:v libvpx -pix_fmt yuv420p",
+            "-c:v libvpx-vp9"
         };
 
         static string GetSuffix(Preset preset)
