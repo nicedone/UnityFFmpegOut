@@ -1,4 +1,7 @@
 ﻿using UnityEngine;
+using UnityEngine.Experimental.Rendering;
+using Unity.Collections;
+using System.Collections.Generic;
 
 namespace FFmpegOut
 {
@@ -23,6 +26,9 @@ namespace FFmpegOut
 
         [SerializeField, HideInInspector] Shader _shader;
         Material _material;
+
+        Queue<AsyncGPUReadbackRequest> _readbackQueue;
+        byte[] _rawDataBuffer;
 
         FFmpegPipe _pipe;
         float _elapsed;
@@ -67,6 +73,7 @@ namespace FFmpegOut
 
         void Start()
         {
+            _readbackQueue = new Queue<AsyncGPUReadbackRequest>();
             _material = new Material(_shader);
         }
 
@@ -77,6 +84,31 @@ namespace FFmpegOut
             if (_startTime <= _elapsed && _elapsed < _startTime + _recordLength)
             {
                 if (_pipe == null) OpenPipe();
+
+                while (_readbackQueue.Count > 0)
+                {
+                    var req = _readbackQueue.Peek();
+
+                    if (req.hasError)
+                    {
+                        Debug.Log("GPU readback error detected.");
+                        _readbackQueue.Dequeue();
+                    }
+                    else if (req.done)
+                    {
+                        var data = req.GetData<byte>();
+                        if (_rawDataBuffer == null)
+                            _rawDataBuffer = new byte[data.Length];
+                        data.CopyTo(_rawDataBuffer);
+                        _pipe.Write(_rawDataBuffer);
+                        _readbackQueue.Dequeue();
+                    }
+                    else
+                    {
+                        break;
+                    }
+                }
+
             }
             else
             {
@@ -88,17 +120,10 @@ namespace FFmpegOut
         {
             if (_pipe != null)
             {
-                var tempRT = RenderTexture.GetTemporary(source.width, source.height);
-                Graphics.Blit(source, tempRT, _material, 0);
-
-                var tempTex = new Texture2D(source.width, source.height, TextureFormat.RGBA32, false);
-                tempTex.ReadPixels(new Rect(0, 0, source.width, source.height), 0, 0, false);
-                tempTex.Apply();
-
-                _pipe.Write(tempTex.GetRawTextureData());
-
-                Destroy(tempTex);
-                RenderTexture.ReleaseTemporary(tempRT);
+                if (_readbackQueue.Count < 8)
+                    _readbackQueue.Enqueue(AsyncGPUReadback.Request(source));
+                else
+                    Debug.Log("Too many requests.");
             }
 
             Graphics.Blit(source, destination);
