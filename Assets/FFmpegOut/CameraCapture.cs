@@ -1,7 +1,9 @@
 ﻿using UnityEngine;
 using UnityEngine.Experimental.Rendering;
 using Unity.Collections;
+using Unity.Collections.LowLevel.Unsafe;
 using System.Collections.Generic;
+using System.Runtime.InteropServices;
 
 namespace FFmpegOut
 {
@@ -99,7 +101,8 @@ namespace FFmpegOut
                         var data = req.GetData<byte>();
                         if (_rawDataBuffer == null)
                             _rawDataBuffer = new byte[data.Length];
-                        data.CopyTo(_rawDataBuffer);
+                        //data.CopyTo(_rawDataBuffer);
+                        Marshal.Copy(data.GetUnsafePtr(), _rawDataBuffer, 0, data.Length);
                         _pipe.Write(_rawDataBuffer);
                         _readbackQueue.Dequeue();
                     }
